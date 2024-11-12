@@ -1,6 +1,7 @@
 import pyabf
 import matplotlib.pyplot as plt
 import matplotlib
+import scipy.signal
 from scipy import signal
 
 from scipy.signal import butter, iirnotch, lfilter, filtfilt, sosfiltfilt, hilbert
@@ -158,6 +159,14 @@ for i in range (last):
 print("end of loop")
 
 sig = np.array(signal_xx).flatten()
+
+
+# f, t, Zxx = signal.stft(sig, fs = 5000, nperseg=1000)
+# plt.pcolormesh(t, f, np.abs(Zxx), vmin=0, vmax=500, shading='gouraud')
+# plt.title('STFT Magnitude')
+# plt.ylabel('Frequency [Hz]')
+# plt.xlabel('Time [sec]')
+# plt.show()
 
 
 
@@ -587,7 +596,7 @@ for i in range(len(x_axis)):
     if(loc[i] == True):
         axs.axvline(x_axis[i] * window, color='b', label='own detection', linestyle='--')
         axs.axvline(((x_axis[i] + y_axis[i]) * window), label='own detection', color='b', linestyle='--')
-        axs.text(x_axis[i] * window, 0.5, str(i) + " non-loco", style='italic')
+        axs.text(x_axis[i] * window, 0.5, str(i) + " loco", style='italic')
 
     else:
         axs.axvline(x_axis[i] * window, color='g', label='own detection', linestyle='--')
@@ -677,7 +686,7 @@ ttt = ["loc","Mixte", "Mixte", "non loc", "Mixte", "loc", "Mixte", "Mixte", "non
 
 
 # plt.show()
-region  = 82
+region  = 56
 to_test = sig[(x_axis[region] * window): ((x_axis[region] + y_axis[region]) * window)]
 
 X = np.fft.fft(to_test)
@@ -692,6 +701,24 @@ n_oneside = N // 2
 te = np.abs(X[1:n_oneside])
 freq = freq[:n_oneside]
 
+
+# from pylab import plot,show,subplot,specgram
+#
+# subplot(411)
+# plt.plot(to_test)
+# subplot(412) 
+# specgram(to_test, NFFT=50, noverlap=0)
+# plt.show()
+
+
+wel_freq = scipy.signal.welch(np.abs(X[:n_oneside]), fs = 5000)
+
+f, Pxx_den = signal.welch(to_test, fs)
+plt.semilogy(f, Pxx_den)
+# plt.ylim([0.5e-3, 1])
+plt.xlabel('frequency [Hz]')
+plt.ylabel('PSD [V**2/Hz]')
+# plt.show()
 # y_val = 0.5
 # x_interp = np.interp(y_val, f_oneside,  freq)
 # # x_interp = np.interp(y_vals, y, x)
